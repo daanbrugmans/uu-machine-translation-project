@@ -1,6 +1,6 @@
 # ongoing: SMT for djk -> zhs 
 
-NOTE: Check the PATH as the folder was moved once
+NOTE: check gitignore to have `.out` and `.log` back (or i change the file extension later)
 
 ## arpa
 
