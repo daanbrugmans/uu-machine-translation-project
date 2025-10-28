@@ -39,7 +39,7 @@ class NMTModel(ABC):
         if target_lang == "deu":
             target_lang_code = "de_DE"
         elif target_lang == "zho":
-            target_lang_code = "hr_HR"
+            target_lang_code = "zh_CN"
         else:
             raise ValueError(
                 "Specified target language could not be recognized. Please use 'deu' for German or 'zho' for Chinese."
@@ -55,9 +55,8 @@ class NMTModel(ABC):
             pad_token_id=self.pad_id,
             bos_token_id=self.bos_id,
             eos_token_id=self.eos_id,
-            decoder_start_token_id=self.tokenizer._convert_token_to_id_with_added_voc(
-                target_lang_code
-            ),
+            # decoder_start_token_id=self.tokenizer.lang_code_to_id[target_lang_code],
+            decoder_start_token_id=250025,
         )
 
         translated_sentence = self.tokenizer.decode(
@@ -65,11 +64,13 @@ class NMTModel(ABC):
             skip_special_tokens=True,
             clean_up_tokenization_spaces=False,
         )
+        
+        print(translated_sentence)
 
         return translated_sentence
 
     def translate_batch(
-        self, dataset: datasets.Dataset
+        self, dataset: datasets.Dataset, target_lang: str
     ) -> tuple[list[str], list[str], list[str]]:
         sources = []
         targets = []
@@ -78,26 +79,53 @@ class NMTModel(ABC):
         for row in dataset["translation"]:
             sources.append(row["src_text"])
             targets.append(row["tgt_text"])
-            predictions.append(self.translate(row["src_text"], row["tgt_text"]))
+            predictions.append(self.translate(row["src_text"], target_lang))
 
         return sources, targets, predictions
 
-    # TODO: Implement preprocessing
-    def get_bleu(self, dataset: datasets.Dataset) -> tuple[float, dict]:
-        _, targets, predictions = self.translate_batch(dataset)
-        nested_targets = map(lambda x: [x], targets)
+    def get_bleu(self, dataset: datasets.Dataset, target_lang: str) -> tuple[float, dict, tuple[list[str], list[str], list[str]]]:
+        sources, targets, predictions = self.translate_batch(dataset, target_lang)
+        
+        preprocessed_targets = remove_removable_chars(targets)
+        preprocessed_predictions = remove_removable_chars(predictions)
+        
+        preprocessed_targets = list(map(lambda x: x.lower(), preprocessed_targets))
+        preprocessed_targets = list(map(lambda x: [x], preprocessed_targets))
+        
+        preprocessed_predictions = list(map(lambda x: x.lower(), preprocessed_predictions))
 
         bleu = evaluate.load("bleu")
-        bleu_results = bleu.compute(references=nested_targets, predictions=predictions)
+        bleu_results = bleu.compute(references=preprocessed_targets, predictions=preprocessed_predictions)
 
-        return bleu_results["bleu"], bleu_results
+        return bleu_results["bleu"], bleu_results, (sources, targets, predictions)
 
-    # TODO: Implement preprocessing
-    def get_chrf(self, dataset: datasets.Dataset) -> tuple[float, dict]:
-        _, targets, predictions = self.translate_batch(dataset)
-        nested_targets = map(lambda x: [x], targets)
+    def get_chrf(self, dataset: datasets.Dataset, target_lang: str) -> tuple[float, dict, tuple[list[str], list[str], list[str]]]:
+        sources, targets, predictions = self.translate_batch(dataset, target_lang)
+        
+        preprocessed_targets = remove_removable_chars(targets)
+        preprocessed_predictions = remove_removable_chars(predictions)
+        
+        preprocessed_targets = list(map(lambda x: x.lower(), preprocessed_targets))
+        preprocessed_targets = list(map(lambda x: [x], preprocessed_targets))
+        
+        preprocessed_predictions = list(map(lambda x: x.lower(), preprocessed_predictions))
 
         chrf = evaluate.load("chrf")
-        chrf_results = chrf.compute(references=nested_targets, predictions=predictions)
+        chrf_results = chrf.compute(references=preprocessed_targets, predictions=preprocessed_predictions)
 
-        return chrf_results["score"], chrf_results
+        return chrf_results["score"], chrf_results, (sources, targets, predictions)
+    
+def remove_removable_chars(corpus: list[str]) -> list[str]:
+        preprocessed_corpus: list[str] = []
+        removable_chars = '….,?!:;‘“”()[]{}+=-*_–\|/<>#€%^&*@1234567890"\n│•·†„‘·`‚¬½'
+
+        for text in corpus:
+            text = "".join([char for char in text if char not in removable_chars])
+            text = text.replace("’", "'")
+            text = text.replace("''", "'")
+            text = text.strip()
+
+            preprocessed_corpus.append(text)
+
+        return preprocessed_corpus
+
