@@ -1,9 +1,24 @@
 # Results for NMT Model
 ## Out-of-the-Box
+### Full
 djk-deu:
-- BLEU: 0.16 (0.162)
-- ChrF: 43 (43.14)
+- BLEU: 74.5
+- ChrF: 81.6
+### Pubtrain
+djk-deu:
+- BLEU: 16.3
+- ChrF: 43.1
 
-zho-deu:
-- BLEU: 0.16 (0.162)
-- ChrF: 43 (43.14)
+## Finetuned on djk-eng-deu backtranslations
+### Full
+djk-deu:
+- BLEU: 71.3
+- ChrF: 80.5
+### Pubtrain (5 epochs)
+djk-deu:
+- BLEU: 24.7
+- ChrF: 49.2
+### Pubtrain (20 epochs)
+djk-deu:
+- BLEU: 59.7
+- ChrF: 74.5

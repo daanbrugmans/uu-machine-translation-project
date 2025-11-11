@@ -1,3 +1,8 @@
+.vscode
+models
+results/nmt/lora
+data/backtranslations
+
 ### JupyterNotebooks ###
 # gitignore template for Jupyter Notebooks
 # website: http://jupyter.org/
