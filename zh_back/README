@@ -1,0 +1,12 @@
+$ multi-bleu.perl ../../corpora/eng-djk/test.tk.lc.eng < test.out.djk 
+BLEU = 0.94, 17.7/2.3/0.3/0.1 (BP=1.000, ratio=1.096, hyp_len=21531, ref_len=19641)
+
+$ multi-bleu.perl ../../corpora/eng-djk/test.tk.lc.eng < test.out.mert.djk      
+BLEU = 0.61, 15.1/1.6/0.2/0.0 (BP=1.000, ratio=1.332, hyp_len=26171, ref_len=19641)
+
+$ multi-bleu.perl ../../corpora/backtranslation/test.tk.zho < test.mert.out.zho 
+BLEU = 2.45, 20.8/3.8/1.1/0.4 (BP=1.000, ratio=1.747, hyp_len=8499, ref_len=4866)
+
+---
+
+Garbage in, garbage out

@@ -1,0 +1,12 @@
+Binary write mode is NOT selected
+Scorer type: BLEU
+name: case value: true
+Loading reference from /home/yihu2298/zh_back/corpora/backtranslation//dev.tk.cl.zho
+.Data::m_score_type BLEU
+Data::Scorer type from Scorer: BLEU
+loading nbest from run9.best100.out.gz
+Loaded N-best lists : [Wall 0.316021 CPU 0.312418] seconds.
+Binary write mode is NOT selected
+saving the array into run9.features.dat
+saving the array into run9.scores.dat
+Stopping... : [Wall 0.491346 CPU 0.456575] seconds.
